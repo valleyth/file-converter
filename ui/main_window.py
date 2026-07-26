@@ -16,6 +16,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("File Converter")
         self.setMinimumSize(700, 500)
+        self.setAcceptDrops(True)
 
         self.current_file: Path | None = None
 
@@ -81,3 +82,13 @@ class MainWindow(QMainWindow):
             self.status_label.setText(f"Готово! Сохранено: {output_path.name}")
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", str(e))
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+    def dropEvent(self, event):
+        urls=event.mimeData().urls()
+        if urls:
+            path = Path(urls[0].toLocalFile())
+            self.current_file = path
+            self.file_label.setText(f"Файл: {path.name}")
+            self.status_label.setText("")                
