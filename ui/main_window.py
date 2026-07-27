@@ -2,12 +2,12 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import (
     QMainWindow, QLabel, QVBoxLayout, QWidget,
-    QPushButton, QFileDialog, QMessageBox,
+    QPushButton, QFileDialog, QMessageBox, QComboBox,
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
-from core.registry import find_converter
+from core.registry import find_converter, get_all
 from core.task import ConvertTask
 
 
@@ -31,16 +31,20 @@ class MainWindow(QMainWindow):
 
         self.status_label = QLabel("")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        self.format_combo = QComboBox()
+        self._update_formats()
 
         btn_select = QPushButton("Выбрать файл")
         btn_select.clicked.connect(self.select_file)
 
-        btn_convert = QPushButton("Конвертировать в PNG")
+        btn_convert = QPushButton("Конвертировать")
         btn_convert.clicked.connect(self.convert_file)
 
         layout = QVBoxLayout()
         layout.addWidget(title)
         layout.addWidget(self.file_label)
+        layout.addWidget(self.format_combo)
         layout.addWidget(btn_select)
         layout.addWidget(btn_convert)
         layout.addWidget(self.status_label)
@@ -48,6 +52,14 @@ class MainWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+    
+    def _update_formats(self):
+        self.format_combo.clear()
+        all_formats = set()
+        for converter in get_all():
+            all_formats.update(converter.supported_output())  
+        for fmt in sorted(all_formats):
+            self.format_combo.addItem(fmt)    
 
     def select_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -65,16 +77,16 @@ class MainWindow(QMainWindow):
         if not self.current_file:
             QMessageBox.warning(self, "Ошибка", "Сначала выбери файл!")
             return
-
-        output_path = self.current_file.with_suffix(".png")
+        output_format = self.format_combo.currentText() 
+        output_path = self.current_file.with_suffix(output_format)
 
         if output_path == self.current_file:
-            self.status_label.setText("Файл уже в формате PNG")
+            self.status_label.setText(f"Файл уже в формате {output_format}")
             return
 
         task = ConvertTask(self.current_file, output_path)
         if not task.resolve_converter():
-            QMessageBox.warning(self, "Ошибка", "Конвертер не найден!")
+            QMessageBox.warning(self, "Ошибка", f"нет конвертора для {self.current_file.suffix}")
             return
 
         try:
