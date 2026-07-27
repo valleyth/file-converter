@@ -37,3 +37,4 @@ class ConvertTask:
         except Exception as e:
             self.status = TaskStatus.FAILED
             self.error = str(e)
+            raise
