@@ -5,3 +5,4 @@ fpdf2>=2.7.0
 rawpy>=0.19.0
 python-docx>=1.0.0
 pywin32>=306; platform_system == "Windows"
+pdf2docx>=0.5.0
