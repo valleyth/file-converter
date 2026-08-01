@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
     QMainWindow, QLabel, QVBoxLayout, QWidget,
     QPushButton, QFileDialog, QMessageBox, QComboBox,
 )
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QPixmap
 from PyQt6.QtCore import Qt
 
 from core.registry import find_converter, get_all
@@ -29,6 +29,9 @@ class MainWindow(QMainWindow):
         self.file_label = QLabel("Файл не выбран")
         self.file_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        self.preview_label = QLabel("")
+        self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.status_label = QLabel("")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -44,6 +47,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(title)
         layout.addWidget(self.file_label)
+        layout.addWidget(self.preview_label)
         layout.addWidget(self.format_combo)
         layout.addWidget(btn_select)
         layout.addWidget(btn_convert)
@@ -71,6 +75,7 @@ class MainWindow(QMainWindow):
         if path:
             self.current_file = Path(path)
             self.file_label.setText(f"Файл: {self.current_file.name}")
+            self.show_preview(self.current_file)
             self.status_label.setText("")
 
     def convert_file(self):
@@ -103,4 +108,16 @@ class MainWindow(QMainWindow):
             path = Path(urls[0].toLocalFile())
             self.current_file = path
             self.file_label.setText(f"Файл: {path.name}")
+            self.show_preview(self.current_file)
             self.status_label.setText("")                
+    def show_preview (self, path:Path)->None:
+        if path.suffix.lower() in [".png", ".jpg", ".jpeg", ".bmp", ".webp", ".tiff", ".gif"]:
+            pixmap = QPixmap(str(path))
+            scaled = pixmap.scaled(
+                400, 300,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            ) 
+            self.preview_label.setPixmap(scaled)
+        else:
+            self.preview_label.clear()           
