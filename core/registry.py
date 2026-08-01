@@ -17,3 +17,9 @@ def find_converter(input_ext: str, output_ext: str) -> BaseConverter | None:
         if input_ext in converter.supported_input() and output_ext in converter.supported_output():
             return converter
     return None
+def get_supported_outputs(input_ext:str) ->list[str]:
+    formats = set()
+    for converter in _converters:
+        if input_ext in converter.supported_input():
+            formats.update(converter.supported_output())
+    return sorted(formats)        

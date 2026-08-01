@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont, QPixmap
 from PyQt6.QtCore import Qt
 
-from core.registry import find_converter, get_all
+from core.registry import find_converter, get_all, get_supported_outputs
 from core.task import ConvertTask
 
 
@@ -59,10 +59,11 @@ class MainWindow(QMainWindow):
     
     def _update_formats(self):
         self.format_combo.clear()
-        all_formats = set()
-        for converter in get_all():
-            all_formats.update(converter.supported_output())  
-        for fmt in sorted(all_formats):
+        if not self.current_file:
+            return
+        input_ext = self.current_file.suffix.lower()
+        formats = get_supported_outputs(input_ext) 
+        for fmt in formats:
             self.format_combo.addItem(fmt)    
 
     def select_file(self):
@@ -76,6 +77,7 @@ class MainWindow(QMainWindow):
             self.current_file = Path(path)
             self.file_label.setText(f"Файл: {self.current_file.name}")
             self.show_preview(self.current_file)
+            self._update_formats()
             self.status_label.setText("")
 
     def convert_file(self):
@@ -109,12 +111,13 @@ class MainWindow(QMainWindow):
             self.current_file = path
             self.file_label.setText(f"Файл: {path.name}")
             self.show_preview(self.current_file)
+            self._update_formats()
             self.status_label.setText("")                
     def show_preview (self, path:Path)->None:
         if path.suffix.lower() in [".png", ".jpg", ".jpeg", ".bmp", ".webp", ".tiff", ".gif"]:
             pixmap = QPixmap(str(path))
             scaled = pixmap.scaled(
-                400, 300,
+                200, 100,
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             ) 
