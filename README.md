@@ -4,6 +4,10 @@
 
 Поддерживает конвертацию изображений, документов и RAW форматов.
 
+## Скачать
+
+- [Скачать File Converter v1.0.0](https://github.com/valleyth/file-converter/releases/latest)
+
 ## Возможности
 
 - Конвертация изображений (PNG, JPG, BMP, WebP, TIFF, GIF)
