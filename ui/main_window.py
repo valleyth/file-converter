@@ -141,15 +141,15 @@ class MainWindow(QMainWindow):
         self.status_label.setText("Конвертация запущена...")
         self.btn_convert.setEnabled(False)
         self.btn_cancel.setEnabled(True)
-
     def cancel_conversion(self):
         if self.worker:
             self.worker.cancel()
-            self.status_label.setText("Отмена...")
+            self.status_label.setText("Отмена...")    
 
     def _on_progress(self, current, total, name):
         self.progress_bar.setMaximum(total)
         self.progress_bar.setValue(current + 1)
+        self.status_label.setStyleSheet("color: #64b5f6;")
         self.status_label.setText(f"[{current + 1}/{total}] {name}")
 
     def _on_finished(self, success, fail):
@@ -159,14 +159,26 @@ class MainWindow(QMainWindow):
         msg = f"Готово! Успешно: {success}, ошибок: {fail}"
         if getattr(self, "_skipped", None):
             msg += " Пропущено: " + ", ".join(self._skipped)
+        if fail > 0:
+            self.status_label.setStyleSheet("color: #ef5350;")
+        else:
+            self.status_label.setStyleSheet("color: #66bb6a;")
         self.status_label.setText(msg)
 
     def _on_task_failed(self, message):
+        self.status_label.setStyleSheet("color: #ef5350;")
         self.status_label.setText(f"Ошибка: {message}")
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
+            self.file_list.setStyleSheet(
+                "QListWidget { border: 2px solid #1e88e5; background-color: #3c3c3c; border-radius: 5px; }"
+            )
             event.acceptProposedAction()
+
+    def dragLeaveEvent(self, event):
+        self.file_list.setStyleSheet("")
+        event.accept()
 
     def dropEvent(self, event):
         urls = event.mimeData().urls()
