@@ -6,7 +6,7 @@
 
 ## Скачать
 
-- [Скачать File Converter v1.0.0](https://github.com/valleyth/file-converter/releases/latest)
+- [Скачать File Converter](https://github.com/valleyth/file-converter/releases/latest)
 
 ## Возможности
 
@@ -51,7 +51,7 @@ pyinstaller --onefile --windowed --name file-converter main.py
 
 ## Зависимости
 
-Для конвертации DOCX → PDF требуется LibreOffice (Linux) или Microsoft Word (Windows).
+Для конвертации DOCX → PDF требуется LibreOffice или Microsoft Word.
 
 ## Лицензия
 
